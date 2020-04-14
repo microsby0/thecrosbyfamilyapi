@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: crosby-api
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+---
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    hikari:
+      username: postgres
+      password: postgres
+      connection-test-query: select 1
+    driver-class-name: org.postgresql.Driver
+
+
+
