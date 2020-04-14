@@ -1,7 +1,6 @@
-package com.crosby.recipe.domain.dto;
+package com.crosby.recipe.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.GeneratedValue;
@@ -9,10 +8,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
+import java.sql.Timestamp;
 
-@Getter
-@Setter
+@Data
 @ToString
 @MappedSuperclass
 public abstract class BaseEntity {
@@ -22,8 +20,8 @@ public abstract class BaseEntity {
     private Long id;
 
     @NotNull
-    private Instant createdAt;
+    private Timestamp createdAt;
 
     @NotNull
-    private Instant lastUpdatedAt;
+    private Timestamp lastUpdatedAt;
 }

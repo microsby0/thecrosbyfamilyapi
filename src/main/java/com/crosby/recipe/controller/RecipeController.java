@@ -1,7 +1,7 @@
 package com.crosby.recipe.controller;
 
 import com.crosby.exception.domain.RecipeNotFoundException;
-import com.crosby.recipe.domain.dto.RecipeDTO;
+import com.crosby.recipe.domain.Recipe;
 import com.crosby.recipe.service.RecipeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +25,13 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecipeDTO> getRecipe(@PathVariable final Long id) {
-        Optional<RecipeDTO> recipe = recipeService.findById(id);
+    public ResponseEntity<Recipe> getRecipe(@PathVariable final Long id) {
+        Optional<Recipe> recipe = recipeService.findById(id);
         return ResponseEntity.ok(recipe.orElseThrow(() -> new RecipeNotFoundException(id)));
     }
 
     @PostMapping
-    public ResponseEntity<RecipeDTO> create(@RequestBody final RecipeDTO recipe) {
+    public ResponseEntity<Recipe> create(@RequestBody final Recipe recipe) {
         log.info("Creating recipe " + recipe);
         return ResponseEntity.status(HttpStatus.CREATED).body(recipeService.create(recipe));
     }

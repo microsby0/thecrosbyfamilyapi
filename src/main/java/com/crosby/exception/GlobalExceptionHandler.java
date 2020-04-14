@@ -22,6 +22,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     ResponseEntity<String> genericExceptionHandler(final Exception e) {
         log.error(e.getMessage(), e);
-        return new ResponseEntity<>("An unexpected error has ocurred", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>("An unexpected error has occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

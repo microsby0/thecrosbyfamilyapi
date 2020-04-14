@@ -18,6 +18,12 @@ spring:
       password: postgres
       connection-test-query: select 1
     driver-class-name: org.postgresql.Driver
+---
+spring:
+  profiles: it
+
+server:
+  port: 8090
 
 
 
