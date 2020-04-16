@@ -1,8 +1,9 @@
 package com.crosby.recipe.service
 
-import com.crosby.recipe.RecipeRepository
-import com.crosby.recipe.domain.Recipe
-import com.crosby.recipe.domain.RecipeIngredient
+import com.crosby.exception.domain.RecipeNotFoundException
+import com.crosby.recipe.persistence.repositories.RecipeRepository
+import com.crosby.recipe.persistence.domain.Recipe
+import com.crosby.recipe.persistence.domain.RecipeIngredient
 import spock.lang.Specification
 
 class RecipeServiceTest extends Specification {
@@ -34,19 +35,17 @@ class RecipeServiceTest extends Specification {
             def result = recipeService.findById(1)
 
         then:
-            !result.isPresent()
+            result.isEmpty()
     }
 
     def "Create"() {
         given:
-            def inputRecipe = new Recipe()
-            inputRecipe.setIngredients(Collections.singleton(new RecipeIngredient()))
-            def resultRecipe = new Recipe()
-            resultRecipe.setId(1)
+            def inputRecipe = Recipe.builder().ingredients(Collections.singleton(RecipeIngredient.builder().build())).build()
+            def resultRecipe = Recipe.builder().id(1L).build()
             recipeRepository.save(_ as Recipe) >> resultRecipe
 
         when:
-            def result = recipeService.create(inputRecipe)
+            def result = recipeService.save(inputRecipe)
 
         then:
             result == resultRecipe

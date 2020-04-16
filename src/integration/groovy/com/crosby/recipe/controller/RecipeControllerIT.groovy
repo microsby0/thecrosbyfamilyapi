@@ -1,8 +1,10 @@
 package com.crosby.recipe.controller
 
-import com.crosby.recipe.domain.Recipe
-import com.crosby.recipe.domain.RecipeIngredient
 import com.crosby.recipe.it.AbstractIT
+import com.crosby.recipe.persistence.domain.Ingredient
+import com.crosby.recipe.persistence.domain.Recipe
+import com.crosby.recipe.persistence.domain.RecipeIngredient
+import com.crosby.recipe.persistence.domain.UnitOfMeasure
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
@@ -28,13 +30,18 @@ class RecipeControllerIT extends AbstractIT {
 
     def cleanup() {
         connection.createStatement().executeUpdate("delete from recipe_ingredient")
+        connection.createStatement().executeUpdate("delete from ingredient")
+        connection.createStatement().executeUpdate("delete from unit_of_measure")
         connection.createStatement().executeUpdate("delete from recipe")
     }
 
     def "lookup recipe"() {
         given:
-            connection.createStatement().executeUpdate("insert into recipe (id, created_at, last_updated_at, name) values (1, '2011-12-03T10:15:30Z', '2011-12-03T10:15:30Z', 'Testipe')")
-            connection.createStatement().executeUpdate("insert into recipe_ingredient (id, created_at, last_updated_at, name, quantity, unit_of_measure, recipe_id) values (1, '2011-12-03T10:15:30Z', '2011-12-03T10:15:30Z', 'Apple', 2.5, 'core', 1)")
+            def time = '2011-12-03T10:15:30Z'
+            connection.createStatement().executeUpdate("insert into recipe (id, created_at, last_updated_at, name) values (1, '${time}', '${time}', 'Testipe')")
+            connection.createStatement().executeUpdate("INSERT INTO ingredient (id, created_at, last_updated_at, name) VALUES (1, '${time}', '${time}', 'Apple')")
+            connection.createStatement().executeUpdate("INSERT INTO unit_of_measure (id, created_at, last_updated_at, unit) VALUES (1, '${time}', '${time}', 'core')")
+            connection.createStatement().executeUpdate("INSERT INTO public.recipe_ingredient (id, created_at, last_updated_at, quantity, ingredient_id, unit_of_measure_id, recipe_id) VALUES (1, '${time}', '${time}', 2.5, 1, 1, 1);")
         when:
             def response = testRestTemplate.getForEntity("http://localhost:8090/recipe/1", Recipe.class)
 
@@ -58,6 +65,14 @@ class RecipeControllerIT extends AbstractIT {
             def headers = new HttpHeaders()
             headers.setContentType(MediaType.APPLICATION_JSON)
             def request = new HttpEntity<>(requestBody, headers)
+
+        and:
+            def time = '2011-12-03T10:15:30Z'
+            connection.createStatement().executeUpdate("INSERT INTO ingredient (id, created_at, name) VALUES (1, '${time}', 'apple')")
+            connection.createStatement().executeUpdate("INSERT INTO ingredient (id, created_at, name) VALUES (2, '${time}', 'banana')")
+            connection.createStatement().executeUpdate("INSERT INTO unit_of_measure (id, created_at, unit) VALUES (1, '${time}', 'each')")
+            connection.createStatement().executeUpdate("INSERT INTO unit_of_measure (id, created_at, unit) VALUES (2, '${time}', 'half')")
+
         when:
             def response = testRestTemplate.postForEntity("http://localhost:8090/recipe", request, Recipe.class)
 
@@ -70,28 +85,29 @@ class RecipeControllerIT extends AbstractIT {
             responseBody.getId() == 1
             responseBody.getCategory() == "entree"
             responseBody.getName() == "Test Recipe"
+
         and:
             def ingredients = responseBody.getIngredients()
-            ingredients.find {it.getName() == "apple" && it.getUnitOfMeasure() == "each" && it.getQuantity() == 3} != null
-            ingredients.find {it.getName() == "banana" && it.getUnitOfMeasure() == "half" && it.getQuantity() == 2.5} != null
+            ingredients.find { it.getIngredient().getName() == "apple" && it.getUnitOfMeasure().getUnit() == "each" && it.getQuantity() == 3 } != null
+            ingredients.find { it.getIngredient().getName() == "banana" && it.getUnitOfMeasure().getUnit() == "half" && it.getQuantity() == 2.5 } != null
     }
 
     def buildRecipe() {
         def time = '2011-12-03T15:15:30Z'
         def instantTime = Timestamp.from(Instant.parse(time))
-        def expectedIngredient = new RecipeIngredient()
-        expectedIngredient.setId(1)
-        expectedIngredient.setCreatedAt(instantTime)
-        expectedIngredient.setLastUpdatedAt(instantTime)
-        expectedIngredient.setName("Apple")
-        expectedIngredient.setQuantity(2.5)
-        expectedIngredient.setUnitOfMeasure("core")
-        def expectedRecipe = new Recipe()
-        expectedRecipe.setId(1)
-        expectedRecipe.setCreatedAt(instantTime)
-        expectedRecipe.setLastUpdatedAt(instantTime)
-        expectedRecipe.setName('Testipe')
-        expectedRecipe.setIngredients(Collections.singleton(expectedIngredient))
+        def expectedIngredient = RecipeIngredient.builder()
+                .id(1)
+                .ingredient(Ingredient.builder().id(1).name("Apple").build())
+                .unitOfMeasure(UnitOfMeasure.builder().id(1).unit("core").build())
+                .quantity(2.5)
+                .build()
+        def expectedRecipe = Recipe.builder()
+                .id(1)
+                .createdAt(instantTime)
+                .lastUpdatedAt(instantTime)
+                .name("Testipe")
+                .ingredients(Collections.singleton(expectedIngredient))
+                .build()
         return expectedRecipe
     }
 
@@ -102,13 +118,25 @@ class RecipeControllerIT extends AbstractIT {
                 "category": "entree",
                 "ingredients": [
                     {
-                        "name": "apple",
-                        "unitOfMeasure": "each",
+                        "ingredient": {
+                            "id": 1,
+                            "name": "apple"
+                        },
+                        "unitOfMeasure": {
+                            "id": 1,
+                            "unit": "each"
+                        },
                         "quantity": 3
                     },
                     {
-                        "name": "banana",
-                        "unitOfMeasure": "half",
+                        "ingredient": {
+                            "id": 2,
+                            "name": "banana"
+                        },
+                        "unitOfMeasure": {
+                            "id": 2,
+                            "unit": "half"
+                        },
                         "quantity": 2.5
                     }
                 ]

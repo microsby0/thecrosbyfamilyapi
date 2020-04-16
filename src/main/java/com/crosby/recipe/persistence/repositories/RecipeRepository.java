@@ -1,7 +1,7 @@
-package com.crosby.recipe;
+package com.crosby.recipe.persistence.repositories;
 
-import com.crosby.recipe.domain.Recipe;
 import org.springframework.data.repository.CrudRepository;
+import com.crosby.recipe.persistence.domain.Recipe;
 
 public interface RecipeRepository extends CrudRepository<Recipe, Long> {
 }

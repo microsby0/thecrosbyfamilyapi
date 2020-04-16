@@ -1,7 +1,7 @@
 package com.crosby.recipe.controller;
 
 import com.crosby.exception.domain.RecipeNotFoundException;
-import com.crosby.recipe.domain.Recipe;
+import com.crosby.recipe.persistence.domain.Recipe;
 import com.crosby.recipe.service.RecipeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -26,13 +24,12 @@ public class RecipeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Recipe> getRecipe(@PathVariable final Long id) {
-        Optional<Recipe> recipe = recipeService.findById(id);
-        return ResponseEntity.ok(recipe.orElseThrow(() -> new RecipeNotFoundException(id)));
+        return ResponseEntity.ok(recipeService.findById(id).orElseThrow(() -> new RecipeNotFoundException(id)));
     }
 
     @PostMapping
     public ResponseEntity<Recipe> create(@RequestBody final Recipe recipe) {
         log.info("Creating recipe " + recipe);
-        return ResponseEntity.status(HttpStatus.CREATED).body(recipeService.create(recipe));
+        return ResponseEntity.status(HttpStatus.CREATED).body(recipeService.save(recipe));
     }
 }

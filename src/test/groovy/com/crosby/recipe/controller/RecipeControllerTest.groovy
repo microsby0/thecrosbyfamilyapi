@@ -1,7 +1,7 @@
 package com.crosby.recipe.controller
 
 import com.crosby.exception.domain.RecipeNotFoundException
-import com.crosby.recipe.domain.Recipe
+import com.crosby.recipe.persistence.domain.Recipe
 import com.crosby.recipe.service.RecipeService
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
@@ -42,10 +42,9 @@ class RecipeControllerTest extends Specification {
 
     def "create recipe success"() {
         given:
-            def expectedRecipe = new Recipe()
-            expectedRecipe.setId(2)
-            def inputRecipe = new Recipe()
-            recipeService.create(inputRecipe) >> expectedRecipe
+            def expectedRecipe = Recipe.builder().id(2).build()
+            def inputRecipe = Recipe.builder().build()
+            recipeService.save(inputRecipe) >> expectedRecipe
 
         when:
             def response = recipeController.create(inputRecipe)

@@ -1,12 +1,10 @@
 package com.crosby.recipe.service;
 
-import com.crosby.recipe.RecipeRepository;
-import com.crosby.recipe.domain.Recipe;
+import com.crosby.recipe.persistence.domain.Recipe;
+import com.crosby.recipe.persistence.repositories.RecipeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -15,18 +13,11 @@ public class RecipeService {
 
     private final RecipeRepository recipeRepository;
 
-    public Optional<Recipe> findById(Long id) {
+    public Optional<Recipe> findById(final Long id) {
         return recipeRepository.findById(id);
     }
 
-    public Recipe create(final Recipe recipe) {
-        Timestamp now = Timestamp.from(Instant.now());
-        recipe.setCreatedAt(now);
-        recipe.setLastUpdatedAt(now);
-        recipe.getIngredients().forEach(i -> {
-            i.setCreatedAt(now);
-            i.setLastUpdatedAt(now);
-        });
+    public Recipe save(final Recipe recipe) {
         return recipeRepository.save(recipe);
     }
 }

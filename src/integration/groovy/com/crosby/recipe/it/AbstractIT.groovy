@@ -1,4 +1,4 @@
-package com.crosby.recipe.it;
+package com.crosby.recipe.it
 
 import com.crosby.CrosbyApiApplication
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer
