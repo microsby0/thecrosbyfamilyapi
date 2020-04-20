@@ -41,7 +41,8 @@ class RecipeControllerIT extends AbstractIT {
             connection.createStatement().executeUpdate("insert into recipe (id, created_at, last_updated_at, name) values (1, '${time}', '${time}', 'Testipe')")
             connection.createStatement().executeUpdate("INSERT INTO ingredient (id, created_at, last_updated_at, name) VALUES (1, '${time}', '${time}', 'Apple')")
             connection.createStatement().executeUpdate("INSERT INTO unit_of_measure (id, created_at, last_updated_at, unit) VALUES (1, '${time}', '${time}', 'core')")
-            connection.createStatement().executeUpdate("INSERT INTO public.recipe_ingredient (id, created_at, last_updated_at, quantity, ingredient_id, unit_of_measure_id, recipe_id) VALUES (1, '${time}', '${time}', 2.5, 1, 1, 1);")
+            connection.createStatement().executeUpdate("INSERT INTO recipe_ingredient (id, created_at, last_updated_at, quantity, ingredient_id, unit_of_measure_id, recipe_id) " +
+                    "                                   VALUES (1, '${time}', '${time}', 2.5, 1, 1, 1);")
         when:
             def response = testRestTemplate.getForEntity("http://localhost:8090/recipe/1", Recipe.class)
 
